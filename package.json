@@ -1,0 +1,44 @@
+{
+  "name": "ffwd-cli",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": "Applied Research & Development",
+  "description": "A framework for business applications",
+  "homepage": "http://ffwd.tech",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ffwdtech/ffwd.git"
+  },
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "dependencies": {
+    "buble": "^0.19.3",
+    "express": "^4.16.3",
+    "fs-extra": "^5.0.0",
+    "highland": "^2.13.0",
+    "map-stream": "0.0.7",
+    "node-watch": "^0.5.8",
+    "rollup": "^0.57.1",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-uglify": "^3.0.0",
+    "rollup-plugin-vinyl": "^0.2.0",
+    "uuid": "^3.2.1",
+    "vinyl": "^2.1.0",
+    "vinyl-fs": "^3.0.2",
+    "vinyl-write": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^10.3.4",
+    "eslint": "^4.19.1",
+    "typescript-eslint-parser": "^16.0.0"
+  },
+  "bin": {
+    "ffwd": "./build/bin/ffwd.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
