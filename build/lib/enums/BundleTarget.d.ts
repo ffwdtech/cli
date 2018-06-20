@@ -1,7 +1,7 @@
 declare enum BundleTarget {
-    both = 0,
-    client = 1,
-    server = 2,
+    both = "both",
+    client = "client",
+    server = "server",
 }
 export { BundleTarget };
 export default BundleTarget;

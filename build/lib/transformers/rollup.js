@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -33,21 +34,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var Vinyl = require('vinyl');
-var rollup = require('rollup').rollup;
-var rollupVinyl = require('rollup-plugin-vinyl');
-var resolve = require('rollup-plugin-node-resolve');
-var commonjs = require('rollup-plugin-commonjs');
-var uglify = require('rollup-plugin-uglify');
-var H = require('highland');
-var path = require('path');
+Object.defineProperty(exports, "__esModule", { value: true });
+var Vinyl = require("vinyl");
+var path = require("path");
+var rollup_1 = require("rollup");
+var rollupVinyl = require("rollup-plugin-vinyl");
+var resolve = require("rollup-plugin-node-resolve");
+var commonjs = require("rollup-plugin-commonjs");
+var uglify = require("rollup-plugin-uglify");
 function transform(_a, options) {
     var target = _a.target, contents = _a.contents, files = _a.files;
     return __awaiter(this, void 0, void 0, function () {
         var bundle, generated, code, base, filePath, returnFiles;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, rollup(Object.assign(options.inputOptions, {
+                case 0: return [4 /*yield*/, rollup_1.rollup(Object.assign(options.inputOptions, {
                         plugins: [
                             rollupVinyl({
                                 files: files
@@ -84,5 +85,6 @@ function transform(_a, options) {
         });
     });
 }
-module.exports = transform;
+exports.transform = transform;
+exports.default = transform;
 //# sourceMappingURL=rollup.js.map

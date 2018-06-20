@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -33,14 +34,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var H = require('highland');
-var debug = require('../debug');
-var Vinyl = require('vinyl');
-var rollup = require('rollup').rollup;
-var rollupVinyl = require('rollup-plugin-vinyl');
-var resolve = require('rollup-plugin-node-resolve');
-var commonjs = require('rollup-plugin-commonjs');
-var uglify = require('rollup-plugin-uglify');
+Object.defineProperty(exports, "__esModule", { value: true });
+var debug_1 = require("../debug");
+var H = require("highland");
+var Vinyl = require("vinyl");
+var rollup_1 = require("rollup");
+var rollupVinyl = require("rollup-plugin-vinyl");
+var resolve = require("rollup-plugin-node-resolve");
+var commonjs = require("rollup-plugin-commonjs");
 var FFWDFunctionType = {
     Route: "Route",
     Method: "Method"
@@ -57,7 +58,7 @@ function runTransformersOnFileStreamItem(_a) {
         var bundle, generated, fileAsModule;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, rollup({
+                case 0: return [4 /*yield*/, rollup_1.rollup({
                         input: file.path,
                         plugins: [
                             rollupVinyl({
@@ -102,14 +103,14 @@ function runTransformersOnFileStreamItem(_a) {
  * @param {Object} options        Transformer options
  */
 function transform(_a, options) {
-    var target = _a.target, bundle = _a.bundle, files = _a.files;
+    var target = _a.target, contents = _a.contents, files = _a.files;
     return __awaiter(this, void 0, void 0, function () {
         var _this = this;
         return __generator(this, function (_b) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     var src = H(files);
                     src.errors(function (err) {
-                        debug.error(err);
+                        debug_1.default.error(err);
                         reject(err);
                     })
                         .flatMap(function (file) {
@@ -140,7 +141,7 @@ function transform(_a, options) {
                                 files[FFWDFunctionType.Method] = [];
                             files = files[FFWDFunctionType.Route].concat(files[FFWDFunctionType.Method]).map(function (fileAndFunctionType) { return fileAndFunctionType.file; });
                             resolve({
-                                bundle: bundle,
+                                bundle: contents,
                                 files: files
                             });
                             return [2 /*return*/];
@@ -150,5 +151,6 @@ function transform(_a, options) {
         });
     });
 }
-module.exports = transform;
+exports.transform = transform;
+exports.default = transform;
 //# sourceMappingURL=ffwd-bundle-transformer-server-express.js.map

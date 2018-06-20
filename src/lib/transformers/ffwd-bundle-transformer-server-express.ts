@@ -1,19 +1,24 @@
-const H = require('highland');
-const debug = require('../debug');
+import debug from "../debug";
+import * as H from "highland";
+import * as vfs from "vinyl-fs";
+import * as write from "vinyl-write";
+import * as Vinyl from "vinyl";
+import * as path from "path";
+import * as uuid from "uuid";
 
-const Vinyl = require('vinyl')
-const rollup = require('rollup').rollup;
-const rollupVinyl = require('rollup-plugin-vinyl');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
-const uglify = require('rollup-plugin-uglify');
+import { rollup } from "rollup";
+import * as rollupVinyl from "rollup-plugin-vinyl";
+import * as resolve from "rollup-plugin-node-resolve";
+import * as commonjs from "rollup-plugin-commonjs";
+import * as uglify from "rollup-plugin-uglify";
+import IBundleTransformerInput from "../interfaces/IBundleTransformerInput";
 
 const FFWDFunctionType = {
   Route: "Route",
   Method: "Method"
 }
 
-function requireFromString(src, filename) {
+function requireFromString(src:any, filename:string) {
   const Module = module.constructor;
   const m = new Module();
   m._compile(src, filename);
@@ -24,7 +29,7 @@ async function runTransformersOnFileStreamItem({
   file,
   files,
   options
-}) {
+}: any) {
 
   const bundle = await rollup({
     input: file.path,
@@ -75,9 +80,9 @@ async function runTransformersOnFileStreamItem({
  */
 async function transform({
   target,
-  bundle,
+  contents,
   files
-}, options) {
+}: IBundleTransformerInput, options: any): Promise<any> {
 
   return new Promise((resolve, reject) => {
 
@@ -101,15 +106,15 @@ async function transform({
       })
       .parallel(1024)
       .group('functionType')
-      .apply(async (files) => {
+      .apply(async (files:any) => {
 
         if (!files[FFWDFunctionType.Route]) files[FFWDFunctionType.Route] = [];
         if (!files[FFWDFunctionType.Method]) files[FFWDFunctionType.Method] = [];
 
-        files = files[FFWDFunctionType.Route].concat(files[FFWDFunctionType.Method]).map(fileAndFunctionType => fileAndFunctionType.file);
+        files = files[FFWDFunctionType.Route].concat(files[FFWDFunctionType.Method]).map((fileAndFunctionType:any) => fileAndFunctionType.file);
 
         resolve({
-          bundle: bundle,
+          bundle: contents,
           files: files
         });
       });
@@ -118,4 +123,8 @@ async function transform({
 
 }
 
-module.exports = transform;
+export {
+  transform
+}
+
+export default transform;

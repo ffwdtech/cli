@@ -1,8 +1,4 @@
-declare const Vinyl: any;
-declare const rollup: any;
-declare const rollupVinyl: any;
-declare const resolve: any;
-declare const commonjs: any;
-declare const uglify: any;
-declare const H: any;
-declare const path: any;
+import IBundleTransformerInput from "../interfaces/IBundleTransformerInput";
+declare function transform({target, contents, files}: IBundleTransformerInput, options: any): Promise<any>;
+export { transform };
+export default transform;

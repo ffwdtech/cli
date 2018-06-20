@@ -1,33 +1,39 @@
-const LogTypes = {
-  emergency: "emergency",
-  alert: "alert",
-  critical: "critical",
-  error: "error",
-  warn: "warn",
-  notice: "notice",
-  info: "info",
-  log: "log",
-  debug: "debug",
-  trace: "trace"
+enum LogTypes {
+  EMERGENCY = "emergency",
+  ALERT = "alert",
+  CRITICAL = "critical",
+  ERROR = "error",
+  WARN = "warn",
+  NOTICE = "notice",
+  INFO = "info",
+  LOG = "log",
+  DEBUG = "debug",
+  TRACE = "trace"
 };
 
-module.exports = {
+const debug = {
 
-  _log(type, args) {
+  _log(type: any, args: any[]) {
     const d = new Date();
     console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()} [${type}]`, args.join(' '));
   },
   
-  emergency(...args)  { this._log(LogTypes.emergency, args); },
-  alert(...args)      { this._log(LogTypes.alert, args); },
-  critical(...args)   { this._log(LogTypes.critical, args); },
-  error(...args)      { this._log(LogTypes.error, args); },
-  warn(...args)       { this._log(LogTypes.warn, args); },
-  notice(...args)     { this._log(LogTypes.notice, args); },
-  info(...args)       { this._log(LogTypes.info, args); },
-  warn(...args)       { this._log(LogTypes.warn, args); },
-  log(...args)        { this._log(LogTypes.log, args); },
-  debug(...args)      { this._log(LogTypes.debug, args); },
-  trace(...args)      { this._log(LogTypes.trace, args); }
+  emergency(...args: any[])  { this._log(LogTypes.EMERGENCY, args); },
+  alert(...args: any[])      { this._log(LogTypes.ALERT, args); },
+  critical(...args: any[])   { this._log(LogTypes.CRITICAL, args); },
+  error(...args: any[])      { this._log(LogTypes.ERROR, args); },
+  warn(...args: any[])       { this._log(LogTypes.WARN, args); },
+  notice(...args: any[])     { this._log(LogTypes.NOTICE, args); },
+  info(...args: any[])       { this._log(LogTypes.INFO, args); },
+  log(...args: any[])        { this._log(LogTypes.LOG, args); },
+  debug(...args: any[])      { this._log(LogTypes.DEBUG, args); },
+  trace(...args: any[])      { this._log(LogTypes.TRACE, args); }
   
 }
+
+export {
+  debug,
+  LogTypes
+};
+
+export default debug;

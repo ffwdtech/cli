@@ -1,17 +1,23 @@
-const Vinyl = require('vinyl')
-const rollup = require('rollup').rollup;
-const rollupVinyl = require('rollup-plugin-vinyl');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
-const uglify = require('rollup-plugin-uglify');
-const H = require('highland');
-const path = require('path');
+import debug from "../debug";
+import * as H from "highland";
+import * as vfs from "vinyl-fs";
+import * as write from "vinyl-write";
+import * as Vinyl from "vinyl";
+import * as path from "path";
+import * as uuid from "uuid";
+
+import { rollup } from "rollup";
+import * as rollupVinyl from "rollup-plugin-vinyl";
+import * as resolve from "rollup-plugin-node-resolve";
+import * as commonjs from "rollup-plugin-commonjs";
+import * as uglify from "rollup-plugin-uglify";
+import IBundleTransformerInput from "../interfaces/IBundleTransformerInput";
 
 async function transform({
   target,
   contents,
   files
-}, options) {
+}: IBundleTransformerInput, options: any): Promise<any> {
 
   const bundle = await rollup(
     Object.assign(
@@ -55,4 +61,8 @@ async function transform({
 
 }
 
-module.exports = transform;
+export {
+  transform
+}
+
+export default transform;

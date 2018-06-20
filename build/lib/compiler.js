@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -33,14 +34,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var debug = require('./debug');
-var H = require('highland');
-var vfs = require('vinyl-fs');
-var write = require('vinyl-write');
-var Vinyl = require('vinyl');
-var path = require('path');
-var uuid = require('uuid');
-var BundleTarget = require('./constants/BundleTarget');
+Object.defineProperty(exports, "__esModule", { value: true });
+var debug_1 = require("./debug");
+var H = require("highland");
+var vfs = require("vinyl-fs");
+var write = require("vinyl-write");
+var Vinyl = require("vinyl");
+var path = require("path");
+var uuid = require("uuid");
+var BundleTarget_1 = require("./enums/BundleTarget");
 /**
  *
  * FFWD compiler.
@@ -67,14 +69,14 @@ var Compiler = /** @class */ (function () {
      * @param {file} file A vinyl-fs file
      */
     Compiler.prototype.determineBundleTarget = function (file) {
-        var bundleTarget = BundleTarget.both; // Default to both targets
+        var bundleTarget = BundleTarget_1.default.both; // Default to both targets
         if (file.path.includes('.client') || file.path.includes('/client/')) {
-            bundleTarget = BundleTarget.client;
+            bundleTarget = BundleTarget_1.default.client;
         }
         else if (file.path.includes('.server') || file.path.includes('/server/')) {
-            bundleTarget = BundleTarget.server;
+            bundleTarget = BundleTarget_1.default.server;
         }
-        return bundleTarget;
+        return bundleTarget.toString();
     };
     /**
      * Run the configured transformers on a file in a stream
@@ -97,7 +99,7 @@ var Compiler = /** @class */ (function () {
                         transformer = _a[_i];
                         if (!(!transformer.extensions ||
                             transformer.extensions.find(function (extension) { return file.path.endsWith(extension); }))) return [3 /*break*/, 5];
-                        debug.trace("Applying transformer " + transformer.name + " to file " + file.path);
+                        debug_1.default.trace("Applying transformer " + transformer.name + " to file " + file.path);
                         _b.label = 2;
                     case 2:
                         _b.trys.push([2, 4, , 5]);
@@ -110,8 +112,7 @@ var Compiler = /** @class */ (function () {
                         return [3 /*break*/, 5];
                     case 4:
                         e_1 = _b.sent();
-                        debug.error(e_1);
-                        reject(e_1);
+                        debug_1.default.error(e_1);
                         return [3 /*break*/, 5];
                     case 5:
                         _i++;
@@ -153,7 +154,7 @@ var Compiler = /** @class */ (function () {
                         // Process affected files one-by-one.
                         //
                         src.errors(function (err) {
-                            debug.error(err);
+                            debug_1.default.error(err);
                             reject(err);
                         }).flatMap(function (file) {
                             return H(function (push, next) {
@@ -179,22 +180,22 @@ var Compiler = /** @class */ (function () {
                             return __generator(this, function (_o) {
                                 switch (_o.label) {
                                     case 0:
-                                        debug.trace('Starting bundle transformations.');
+                                        debug_1.default.trace('Starting bundle transformations.');
                                         //
                                         // Gather bundles
                                         //
                                         this.bundles = {};
                                         // Initialize empty arrays
-                                        if (!files[BundleTarget.client])
-                                            files[BundleTarget.client] = [];
-                                        if (!files[BundleTarget.server])
-                                            files[BundleTarget.server] = [];
-                                        if (!files[BundleTarget.both])
-                                            files[BundleTarget.both] = [];
-                                        this.bundles[BundleTarget.client] = {
-                                            target: BundleTarget.client,
+                                        if (!files[BundleTarget_1.default.client])
+                                            files[BundleTarget_1.default.client] = [];
+                                        if (!files[BundleTarget_1.default.server])
+                                            files[BundleTarget_1.default.server] = [];
+                                        if (!files[BundleTarget_1.default.both])
+                                            files[BundleTarget_1.default.both] = [];
+                                        this.bundles[BundleTarget_1.default.client] = {
+                                            target: BundleTarget_1.default.client,
                                             contents: null,
-                                            files: files[BundleTarget.client].concat(files[BundleTarget.both]).map(function (targetAndFile) {
+                                            files: files[BundleTarget_1.default.client].concat(files[BundleTarget_1.default.both]).map(function (targetAndFile) {
                                                 var file = targetAndFile.file;
                                                 return new Vinyl({
                                                     cwd: file.cwd,
@@ -206,10 +207,10 @@ var Compiler = /** @class */ (function () {
                                                 });
                                             })
                                         };
-                                        this.bundles[BundleTarget.server] = {
-                                            target: BundleTarget.server,
+                                        this.bundles[BundleTarget_1.default.server] = {
+                                            target: BundleTarget_1.default.server,
                                             contents: null,
-                                            files: files[BundleTarget.server].concat(files[BundleTarget.both]).map(function (targetAndFile) {
+                                            files: files[BundleTarget_1.default.server].concat(files[BundleTarget_1.default.both]).map(function (targetAndFile) {
                                                 var file = targetAndFile.file;
                                                 return new Vinyl({
                                                     cwd: file.cwd,
@@ -226,13 +227,13 @@ var Compiler = /** @class */ (function () {
                                     case 1:
                                         if (!(_i < _a.length)) return [3 /*break*/, 8];
                                         bundleTransformer = _a[_i];
-                                        bundleTransformerTargets = bundleTransformer.targets && bundleTransformer.targets.length ? bundleTransformer.targets : [BundleTarget.client, BundleTarget.server];
+                                        bundleTransformerTargets = bundleTransformer.targets && bundleTransformer.targets.length ? bundleTransformer.targets : [BundleTarget_1.default.client, BundleTarget_1.default.server];
                                         _b = 0, bundleTransformerTargets_1 = bundleTransformerTargets;
                                         _o.label = 2;
                                     case 2:
                                         if (!(_b < bundleTransformerTargets_1.length)) return [3 /*break*/, 7];
                                         target = bundleTransformerTargets_1[_b];
-                                        debug.trace("Applying transformer " + bundleTransformer.name + " to bundle " + target);
+                                        debug_1.default.trace("Applying transformer " + bundleTransformer.name + " to bundle " + target);
                                         _o.label = 3;
                                     case 3:
                                         _o.trys.push([3, 5, , 6]);
@@ -243,11 +244,11 @@ var Compiler = /** @class */ (function () {
                                         return [4 /*yield*/, bundleTransformer.transform(this.bundles[target], bundleTransformer.options)];
                                     case 4:
                                         _c[_d] = _f.apply(_e, _g.concat([_o.sent()]));
-                                        debug.trace("Applied transformer " + bundleTransformer.name + " to bundle " + target);
+                                        debug_1.default.trace("Applied transformer " + bundleTransformer.name + " to bundle " + target);
                                         return [3 /*break*/, 6];
                                     case 5:
                                         e_2 = _o.sent();
-                                        debug.error(e_2);
+                                        debug_1.default.error(e_2);
                                         reject(e_2);
                                         return [3 /*break*/, 6];
                                     case 6:
@@ -257,7 +258,7 @@ var Compiler = /** @class */ (function () {
                                         _i++;
                                         return [3 /*break*/, 1];
                                     case 8:
-                                        debug.trace('Bundle transformation done.');
+                                        debug_1.default.trace('Bundle transformation done.');
                                         _h = [];
                                         for (_j in this.bundles)
                                             _h.push(_j);
@@ -276,11 +277,11 @@ var Compiler = /** @class */ (function () {
                                                         file.cwd = file.cwd.replace(this_1.buildDirectory, this_1.outputDirectory);
                                                         file.base = file.base.replace(this_1.buildDirectory, this_1.outputDirectory);
                                                         file.path = file.path.replace(this_1.buildDirectory, this_1.outputDirectory);
-                                                        debug.trace("Writing file " + file.path);
+                                                        debug_1.default.trace("Writing file " + file.path);
                                                         return [4 /*yield*/, new Promise(function (re, rj) {
                                                                 write(file, function (err) {
                                                                     if (err) {
-                                                                        debug.error(err);
+                                                                        debug_1.default.error(err);
                                                                         rj(err);
                                                                     }
                                                                     else
@@ -321,5 +322,6 @@ var Compiler = /** @class */ (function () {
     };
     return Compiler;
 }());
-module.exports = Compiler;
+exports.Compiler = Compiler;
+exports.default = Compiler;
 //# sourceMappingURL=compiler.js.map

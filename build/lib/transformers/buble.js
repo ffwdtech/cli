@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -33,7 +34,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var buble = require('buble');
+Object.defineProperty(exports, "__esModule", { value: true });
+var buble = require("buble");
 function transform(_a, cb) {
     var input = _a.input, options = _a.options;
     return __awaiter(this, void 0, void 0, function () {
@@ -52,5 +54,6 @@ function transform(_a, cb) {
         });
     });
 }
-module.exports = transform;
+exports.transform = transform;
+exports.default = transform;
 //# sourceMappingURL=buble.js.map

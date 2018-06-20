@@ -1,12 +1,14 @@
-const debug = require('./debug');
-const H = require('highland');
-const vfs = require('vinyl-fs');
-const write = require('vinyl-write');
-const Vinyl = require('vinyl');
-const path = require('path');
-const uuid = require('uuid');
+import debug from "./debug";
+import * as H from "highland";
+import * as vfs from "vinyl-fs";
+import * as write from "vinyl-write";
+import * as Vinyl from "vinyl";
+import * as path from "path";
+import * as uuid from "uuid";
 
-const BundleTarget = require('./constants/BundleTarget');
+import BundleTarget from "./enums/BundleTarget";
+import ICompilerConstructor from "./interfaces/ICompilerConstructor";
+import ICompilerSourceFiles from "./interfaces/ICompilerSourceFiles";
 
 /**
  * 
@@ -20,11 +22,19 @@ const BundleTarget = require('./constants/BundleTarget');
  */
 class Compiler {
 
+  sourceBaseDirectory: string;
+  outputDirectory: string;
+  buildDirectory: string;
+  perFileTransformers: any[];
+  bundleTransformers: any[];
+  bundles: any;
+  buildId: string;
+
   constructor({
     rootFolder,
     perFileTransformers,
     bundleTransformers
-  }) {
+  }: ICompilerConstructor) {
 
     this.buildId = uuid.v4();
 
@@ -41,7 +51,7 @@ class Compiler {
    * Determine bundle target for a file (client, server or both)
    * @param {file} file A vinyl-fs file
    */
-  determineBundleTarget(file) {
+  determineBundleTarget(file:Vinyl) {
 
     let bundleTarget = BundleTarget.both; // Default to both targets
 
@@ -52,7 +62,7 @@ class Compiler {
       bundleTarget = BundleTarget.server;
     }
 
-    return bundleTarget;
+    return bundleTarget.toString();
     
   }
 
@@ -60,7 +70,7 @@ class Compiler {
    * Run the configured transformers on a file in a stream
    * @param {vinyl-fs.file} file  A vinyl-fs file
    */
-  async runTransformersOnFileStreamItem(file) {
+  async runTransformersOnFileStreamItem(file:any):Promise<any> {
 
     let input = {
       contents: file.contents.toString('utf8')
@@ -75,7 +85,7 @@ class Compiler {
     for (let transformer of this.perFileTransformers) {
 
       if (!transformer.extensions ||
-        transformer.extensions.find(extension => file.path.endsWith(extension))) {
+        transformer.extensions.find((extension: string) => file.path.endsWith(extension))) {
 
         debug.trace(`Applying transformer ${transformer.name} to file ${file.path}`);
 
@@ -87,7 +97,6 @@ class Compiler {
         }
         catch (e) {
           debug.error(e);
-          reject(e);
         }
 
       }
@@ -138,7 +147,7 @@ class Compiler {
 
   async compile({
     sourceFiles
-  }) {
+  }: ICompilerSourceFiles) {
 
     return new Promise((resolve, reject) => {
 
@@ -153,11 +162,11 @@ class Compiler {
       // Process affected files one-by-one.
       //
 
-      src.errors((err) => {
+      src.errors((err: any) => {
         debug.error(err);
         reject(err);
-      }).flatMap((file) => {
-        return H((push, next) => {
+      }).flatMap((file: any) => {
+        return H((push: any, next: any) => {
 
           push(null, H(new Promise(async (res, rej) => {
             res(await this.runTransformersOnFileStreamItem(file));
@@ -168,7 +177,7 @@ class Compiler {
         });
       }).parallel(1024)
         .group('bundleTarget')
-        .apply(async (files) => {
+        .apply(async (files:any) => {
 
           debug.trace('Starting bundle transformations.');
 
@@ -186,7 +195,7 @@ class Compiler {
           this.bundles[BundleTarget.client] = {
             target: BundleTarget.client,
             contents: null,
-            files: files[BundleTarget.client].concat(files[BundleTarget.both]).map(targetAndFile => {
+            files: files[BundleTarget.client].concat(files[BundleTarget.both]).map((targetAndFile: any) => {
               const file = targetAndFile.file;
               return new Vinyl({
                 cwd: file.cwd,
@@ -202,7 +211,7 @@ class Compiler {
           this.bundles[BundleTarget.server] = {
             target: BundleTarget.server,
             contents: null,
-            files: files[BundleTarget.server].concat(files[BundleTarget.both]).map(targetAndFile => {
+            files: files[BundleTarget.server].concat(files[BundleTarget.both]).map((targetAndFile: any) => {
               const file = targetAndFile.file;
               return new Vinyl({
                 cwd: file.cwd,
@@ -268,7 +277,7 @@ class Compiler {
 
                 await new Promise((re, rj) => {
 
-                  write(file, function (err) {
+                  write(file, function (err: any) {
                     if (err) {
                       debug.error(err);
                       rj(err);
@@ -293,4 +302,8 @@ class Compiler {
 
 }
 
-module.exports = Compiler;
+export {
+  Compiler
+};
+
+export default Compiler;

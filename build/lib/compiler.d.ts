@@ -1,11 +1,7 @@
-declare const debug: any;
-declare const H: any;
-declare const vfs: any;
-declare const write: any;
-declare const Vinyl: any;
-declare const path: any;
-declare const uuid: any;
-declare const BundleTarget: any;
+/// <reference types="vinyl" />
+import * as Vinyl from "vinyl";
+import ICompilerConstructor from "./interfaces/ICompilerConstructor";
+import ICompilerSourceFiles from "./interfaces/ICompilerSourceFiles";
 /**
  *
  * FFWD compiler.
@@ -17,25 +13,25 @@ declare const BundleTarget: any;
  *
  */
 declare class Compiler {
-    constructor({rootFolder, perFileTransformers, bundleTransformers}: {
-        rootFolder: any;
-        perFileTransformers: any;
-        bundleTransformers: any;
-    });
+    sourceBaseDirectory: string;
+    outputDirectory: string;
+    buildDirectory: string;
+    perFileTransformers: any[];
+    bundleTransformers: any[];
+    bundles: any;
+    buildId: string;
+    constructor({rootFolder, perFileTransformers, bundleTransformers}: ICompilerConstructor);
     /**
      * Determine bundle target for a file (client, server or both)
      * @param {file} file A vinyl-fs file
      */
-    determineBundleTarget(file: any): any;
+    determineBundleTarget(file: Vinyl): string;
     /**
      * Run the configured transformers on a file in a stream
      * @param {vinyl-fs.file} file  A vinyl-fs file
      */
-    runTransformersOnFileStreamItem(file: any): Promise<{
-        bundleTarget: any;
-        file: any;
-    }>;
-    compile({sourceFiles}: {
-        sourceFiles: any;
-    }): Promise<{}>;
+    runTransformersOnFileStreamItem(file: any): Promise<any>;
+    compile({sourceFiles}: ICompilerSourceFiles): Promise<{}>;
 }
+export { Compiler };
+export default Compiler;

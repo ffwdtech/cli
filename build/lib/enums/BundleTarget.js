@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var BundleTarget;
 (function (BundleTarget) {
-    BundleTarget[BundleTarget["both"] = 0] = "both";
-    BundleTarget[BundleTarget["client"] = 1] = "client";
-    BundleTarget[BundleTarget["server"] = 2] = "server";
+    BundleTarget["both"] = "both";
+    BundleTarget["client"] = "client";
+    BundleTarget["server"] = "server";
 })(BundleTarget || (BundleTarget = {}));
 exports.BundleTarget = BundleTarget;
 ;

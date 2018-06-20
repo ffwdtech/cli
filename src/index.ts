@@ -1,8 +1,8 @@
-const path = require('path');
-const debug = require('./lib/debug');
-const Compiler = require('./lib/compiler');
-const watch = require('node-watch');
-const { performance } = require('perf_hooks');
+import * as path from "path";
+import debug from "./lib/debug";
+import Compiler from "./lib/compiler";
+import * as  watch from "node-watch";
+import { performance } from "perf_hooks";
 
 const userDefinedSourceFolder = './src';
 const rootFolder = process.cwd();
@@ -19,47 +19,8 @@ const initFiles = [
 
 debug.log('Starting up..');
 
-const perFileTransformers = [
-  { 
-    name: 'buble',
-    options: {
-      transforms: {
-        modules: false
-      }
-    },
-    extensions: ['.js', '.jsx'],
-    transform: require('./lib/transformers/buble')
-  }
-];
-
-const bundleTransformers = [
-  {
-    name: 'rollup',
-    options: {
-      inputOptions: {
-        input: 'build/client/index.js',
-        output: {
-          experimentalCodeSplitting: true,
-          experimentalDynamicImport: true,
-          name: 'FFWDClientBundle',
-        }
-      },
-      outputOptions: {
-        file: 'dist/client/index.js',
-        format: 'iife'
-      }
-    },
-    targets: ['client'],
-    transform: require('./lib/transformers/rollup')
-  },
-  {
-    name: 'ffwd-bundle-transformer-server-express',
-    options: {
-    },
-    targets: ['server'],
-    transform: require('./lib/transformers/ffwd-bundle-transformer-server-express')
-  }
-];
+const perFileTransformers:any[] = [];
+const bundleTransformers:any[] = [];
 
 const compiler = new Compiler({
   rootFolder,
@@ -67,7 +28,7 @@ const compiler = new Compiler({
   bundleTransformers
 });
 
-async function runWithPerformanceCalc(options) {
+async function runWithPerformanceCalc(options: any) {
   var t0 = performance.now();
   await compiler.compile(options);
   var t1 = performance.now();
@@ -84,7 +45,7 @@ async function run() {
 
   debug.log('Initial compilation done. Starting file watcher.');
 
-  watch(sourceFolder, { recursive: true }, async (evt, name) => {
+  watch(sourceFolder, { recursive: true }, async (evt:any, name:string) => {
 
     debug.log('--------------------------------------------------------------------------------');
     debug.log(`${name} changed. Recompiling bundle..`);

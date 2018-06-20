@@ -1,9 +1,10 @@
-const buble = require('buble');
+import * as buble from "buble";
+import ITransformerInput from "../interfaces/ITransformerInput";
 
 async function transform({
   input,
   options
-}, cb) {
+}: ITransformerInput, cb: any) {
 
   const transformedContents = buble.transform(input, options);
 
@@ -20,4 +21,8 @@ async function transform({
 
 }
 
-module.exports = transform;
+export {
+  transform
+}
+
+export default transform;

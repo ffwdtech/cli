@@ -1,21 +1,12 @@
-declare const H: any;
-declare const debug: any;
-declare const Vinyl: any;
-declare const rollup: any;
-declare const rollupVinyl: any;
-declare const resolve: any;
-declare const commonjs: any;
-declare const uglify: any;
-declare const FFWDFunctionType: {
-    Route: string;
-    Method: string;
-};
-declare function requireFromString(src: any, filename: any): any;
-declare function runTransformersOnFileStreamItem({file, files, options}: {
-    file: any;
-    files: any;
-    options: any;
-}): Promise<{
-    functionType: string;
-    file: any;
-}>;
+import IBundleTransformerInput from "../interfaces/IBundleTransformerInput";
+/**
+ * Bundle server items for use with Express
+ * @param {Object} bundle         VFS bundle
+ * @param {Object} bundle.target  Bundle target
+ * @param {Object} bundle.bundle  Bundle code
+ * @param {Object} bundle.files   Bundle files as VFS
+ * @param {Object} options        Transformer options
+ */
+declare function transform({target, contents, files}: IBundleTransformerInput, options: any): Promise<any>;
+export { transform };
+export default transform;

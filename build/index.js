@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -33,11 +34,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var path = require('path');
-var debug = require('./lib/debug');
-var Compiler = require('./lib/compiler');
-var watch = require('node-watch');
-var performance = require('perf_hooks').performance;
+Object.defineProperty(exports, "__esModule", { value: true });
+var path = require("path");
+var debug_1 = require("./lib/debug");
+var compiler_1 = require("./lib/compiler");
+var watch = require("node-watch");
+var perf_hooks_1 = require("perf_hooks");
 var userDefinedSourceFolder = './src';
 var rootFolder = process.cwd();
 var sourceFolder = path.join(rootFolder, userDefinedSourceFolder || '.');
@@ -48,47 +50,10 @@ var initFiles = [
     folder + "*.html",
     folder + "*.css"
 ];
-debug.log('Starting up..');
-var perFileTransformers = [
-    {
-        name: 'buble',
-        options: {
-            transforms: {
-                modules: false
-            }
-        },
-        extensions: ['.js', '.jsx'],
-        transform: require('./lib/transformers/buble')
-    }
-];
-var bundleTransformers = [
-    {
-        name: 'rollup',
-        options: {
-            inputOptions: {
-                input: 'build/client/index.js',
-                output: {
-                    experimentalCodeSplitting: true,
-                    experimentalDynamicImport: true,
-                    name: 'FFWDClientBundle',
-                }
-            },
-            outputOptions: {
-                file: 'dist/client/index.js',
-                format: 'iife'
-            }
-        },
-        targets: ['client'],
-        transform: require('./lib/transformers/rollup')
-    },
-    {
-        name: 'ffwd-bundle-transformer-server-express',
-        options: {},
-        targets: ['server'],
-        transform: require('./lib/transformers/ffwd-bundle-transformer-server-express')
-    }
-];
-var compiler = new Compiler({
+debug_1.default.log('Starting up..');
+var perFileTransformers = [];
+var bundleTransformers = [];
+var compiler = new compiler_1.default({
     rootFolder: rootFolder,
     perFileTransformers: perFileTransformers,
     bundleTransformers: bundleTransformers
@@ -99,12 +64,12 @@ function runWithPerformanceCalc(options) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    t0 = performance.now();
+                    t0 = perf_hooks_1.performance.now();
                     return [4 /*yield*/, compiler.compile(options)];
                 case 1:
                     _a.sent();
-                    t1 = performance.now();
-                    debug.log("Done in " + (t1 - t0) + "ms.");
+                    t1 = perf_hooks_1.performance.now();
+                    debug_1.default.log("Done in " + (t1 - t0) + "ms.");
                     return [2 /*return*/];
             }
         });
@@ -116,19 +81,19 @@ function run() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    debug.log('Doing initial compilation..');
+                    debug_1.default.log('Doing initial compilation..');
                     return [4 /*yield*/, runWithPerformanceCalc({
                             sourceFiles: initFiles
                         })];
                 case 1:
                     _a.sent();
-                    debug.log('Initial compilation done. Starting file watcher.');
+                    debug_1.default.log('Initial compilation done. Starting file watcher.');
                     watch(sourceFolder, { recursive: true }, function (evt, name) { return __awaiter(_this, void 0, void 0, function () {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
-                                    debug.log('--------------------------------------------------------------------------------');
-                                    debug.log(name + " changed. Recompiling bundle..");
+                                    debug_1.default.log('--------------------------------------------------------------------------------');
+                                    debug_1.default.log(name + " changed. Recompiling bundle..");
                                     return [4 /*yield*/, runWithPerformanceCalc({
                                             sourceFiles: initFiles
                                         })];
