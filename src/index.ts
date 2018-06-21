@@ -4,8 +4,9 @@ import Compiler from "./lib/compiler";
 import * as  watch from "node-watch";
 import { performance } from "perf_hooks";
 import * as colors from "colors/safe";
+import FileCategorizer from "./lib/transformers/FileCategorizer";
 
-const userDefinedSourceFolder = './src';
+const userDefinedSourceFolder = './build';
 const rootFolder = process.cwd();
 const sourceFolder = path.join(rootFolder, userDefinedSourceFolder || '.');
 
@@ -20,7 +21,16 @@ const initFiles = [
 
 debug.info('Starting up..');
 
-const perFileTransformers:any[] = [];
+const perFileTransformers:any[] = [
+  {
+    name: "FileCategorizer",
+    options: {
+      some: "option"
+    },
+    extensions: [".js", ".jsx", ".html", ".css"],
+    transform: FileCategorizer
+  }
+];
 const bundleTransformers:any[] = [];
 
 const compiler = new Compiler({
@@ -41,7 +51,7 @@ async function run() {
   debug.log(`Doing initial compilation on ${initFiles.length} file(s).`);
 
   await runWithPerformanceCalc({
-    sourceFiles: initFiles
+    sourceFilePaths: initFiles
   });
 
   debug.info('Starting file watcher.');
@@ -52,7 +62,7 @@ async function run() {
     debug.log(`${name} changed. Recompiling bundle..`);
 
     await runWithPerformanceCalc({
-      sourceFiles: initFiles
+      sourceFilePaths: initFiles
     });
 
   });

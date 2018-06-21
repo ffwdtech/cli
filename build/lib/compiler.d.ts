@@ -1,7 +1,7 @@
 /// <reference types="vinyl" />
 import * as Vinyl from "vinyl";
 import ICompilerConstructor from "./interfaces/ICompilerConstructor";
-import ICompilerSourceFiles from "./interfaces/ICompilerSourceFiles";
+import ICompilerInput from "./interfaces/ICompilerInput";
 /**
  *
  * FFWD compiler.
@@ -27,11 +27,11 @@ declare class Compiler {
      */
     determineBundleTarget(file: Vinyl): string;
     /**
-     * Run the configured transformers on a file in a stream
-     * @param {vinyl-fs.file} file  A vinyl-fs file
+     * Run the configured per-file transformers on a file in a stream
+     * @param {vinyl-fs.file} inputFile  A vinyl-fs file
      */
-    runTransformersOnFileStreamItem(file: any): Promise<any>;
-    compile({sourceFiles}: ICompilerSourceFiles): Promise<{}>;
+    transformSourceFile(inputFile: any): Promise<any>;
+    compile({sourceFilePaths}: ICompilerInput): Promise<{}>;
 }
 export { Compiler };
 export default Compiler;

@@ -1,5 +1,4 @@
-import ITransformerInput from "../interfaces/ITransformerInput";
-declare function transform({input, options}: ITransformerInput, cb: any): Promise<{
+declare function transform({input, options}: any, cb: any): Promise<{
     contents: any;
     sourcemap: any;
 }>;

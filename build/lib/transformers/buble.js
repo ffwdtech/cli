@@ -36,11 +36,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var buble = require("buble");
+var debug_1 = require("../debug");
 function transform(_a, cb) {
     var input = _a.input, options = _a.options;
     return __awaiter(this, void 0, void 0, function () {
         var transformedContents;
         return __generator(this, function (_b) {
+            debug_1.default.trace("Transformer buble running on " + input + " with options " + options);
             transformedContents = buble.transform(input, options);
             if (!transformedContents) {
                 throw new Error("Couldn't transform file. Contents: \n" + JSON.stringify(transformedContents, null, 2));

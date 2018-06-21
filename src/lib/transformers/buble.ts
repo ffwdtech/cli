@@ -1,10 +1,13 @@
 import * as buble from "buble";
-import ITransformerInput from "../interfaces/ITransformerInput";
+import ITransform from "../interfaces/ITransform";
+import debug from "../debug";
 
 async function transform({
   input,
   options
-}: ITransformerInput, cb: any) {
+}: any, cb: any) {
+
+  debug.trace(`Transformer buble running on ${input} with options ${options}`);
 
   const transformedContents = buble.transform(input, options);
 

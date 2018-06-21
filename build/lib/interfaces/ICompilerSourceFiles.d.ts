@@ -1,5 +1,5 @@
-interface ICompilerSourceFiles {
-    sourceFiles: string[];
+interface ICompilerInput {
+    sourceFilePaths: string[];
 }
-export { ICompilerSourceFiles };
-export default ICompilerSourceFiles;
+export { ICompilerInput };
+export default ICompilerInput;

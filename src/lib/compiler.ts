@@ -8,7 +8,10 @@ import * as uuid from "uuid";
 
 import BundleTarget from "./enums/BundleTarget";
 import ICompilerConstructor from "./interfaces/ICompilerConstructor";
-import ICompilerSourceFiles from "./interfaces/ICompilerSourceFiles";
+import ICompilerInput from "./interfaces/ICompilerInput";
+
+import ITransform from "./interfaces/ITransform";
+import IFile from "./interfaces/IFile";
 
 /**
  * 
@@ -39,8 +42,8 @@ class Compiler {
     this.buildId = uuid.v4();
 
     this.sourceBaseDirectory = path.join(process.cwd(), './src');
-    this.outputDirectory = path.join(rootFolder, './dist');
-    this.buildDirectory = path.join(rootFolder, './build');
+    this.outputDirectory = path.join(rootFolder, './ffwd-dist');
+    this.buildDirectory = path.join(rootFolder, `./ffwd-build`);
     this.perFileTransformers = perFileTransformers;
     this.bundleTransformers = bundleTransformers;
     this.bundles = {};
@@ -67,16 +70,18 @@ class Compiler {
   }
 
   /**
-   * Run the configured transformers on a file in a stream
-   * @param {vinyl-fs.file} file  A vinyl-fs file
+   * Run the configured per-file transformers on a file in a stream
+   * @param {vinyl-fs.file} inputFile  A vinyl-fs file
    */
-  async runTransformersOnFileStreamItem(file:any):Promise<any> {
+  async transformSourceFile(inputFile:any):Promise<any> {
 
-    let input = {
-      contents: file.contents.toString('utf8')
+    let outputFile:IFile = {
+      name: inputFile.name,
+      path: inputFile.path,
+      params: {},
+      sourcemap: null,
+      contents: inputFile.contents.toString('utf8')
     };
-
-    let output = input;
 
     //
     // Run per-file transformers
@@ -85,13 +90,13 @@ class Compiler {
     for (let transformer of this.perFileTransformers) {
 
       if (!transformer.extensions ||
-        transformer.extensions.find((extension: string) => file.path.endsWith(extension))) {
+        transformer.extensions.find((extension: string) => inputFile.path.endsWith(extension))) {
 
-        debug.trace(`Applying transformer ${transformer.name} to file ${file.path}`);
+        debug.trace(`Applying transformer ${transformer.name} to file ${outputFile.path}`);
 
         try {
-          output = await transformer.transform({
-            input: output.contents,
+          outputFile = await transformer.transform({
+            file: outputFile,
             options: transformer.options
           });
         }
@@ -103,13 +108,13 @@ class Compiler {
 
     }
 
-    // Create output buffer for file
+    // Create output buffer for file that Vinyl can use
     let outputContentsBuffer = Buffer.from(
-      output.contents
+      outputFile.contents
     );
 
     // Determine bundle target (client, server or both)
-    const bundleTarget = this.determineBundleTarget(file);
+    const bundleTarget = this.determineBundleTarget(inputFile);
 
     //
     // Get the path difference between the source base directory and
@@ -118,9 +123,9 @@ class Compiler {
     // `/test/src/foo/index.js`, this returns `/foo/index.js.`
     //
 
-    const relativeSourceFilePath = file.path.substring(
+    const relativeSourceFilePath = inputFile.path.substring(
       this.sourceBaseDirectory.length,
-      file.path.length
+      inputFile.path.length
     );
 
     const outputFilePath = path.join(
@@ -129,10 +134,10 @@ class Compiler {
       relativeSourceFilePath
     );
 
-    const outputFile = {
+    return {
       bundleTarget: bundleTarget,
       file: new Vinyl({
-        cwd: file.cwd,
+        cwd: inputFile.cwd,
         base: this.buildDirectory,
         path: outputFilePath,
         contents: outputContentsBuffer,
@@ -141,13 +146,11 @@ class Compiler {
       })
     };
 
-    return outputFile;
-
   }
 
   async compile({
-    sourceFiles
-  }: ICompilerSourceFiles) {
+    sourceFilePaths
+  }: ICompilerInput) {
 
     return new Promise((resolve, reject) => {
 
@@ -156,20 +159,20 @@ class Compiler {
       // operations on the vinyl stream.
       //
 
-      const src = H(vfs.src(sourceFiles));
-
-      //
-      // Process affected files one-by-one.
-      //
+      const src = H(vfs.src(sourceFilePaths));
 
       src.errors((err: any) => {
         debug.error(err);
         reject(err);
-      }).flatMap((file: any) => {
+      }).flatMap((sourceFile: any) => {
         return H((push: any, next: any) => {
 
+          //
+          // Process affected files one-by-one.
+          //
+
           push(null, H(new Promise(async (res, rej) => {
-            res(await this.runTransformersOnFileStreamItem(file));
+            res(await this.transformSourceFile(sourceFile));
           })));
           
           push(null, H.nil);

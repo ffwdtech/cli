@@ -40,7 +40,8 @@ var debug_1 = require("./lib/debug");
 var compiler_1 = require("./lib/compiler");
 var watch = require("node-watch");
 var perf_hooks_1 = require("perf_hooks");
-var userDefinedSourceFolder = './src';
+var FileCategorizer_1 = require("./lib/transformers/FileCategorizer");
+var userDefinedSourceFolder = './build';
 var rootFolder = process.cwd();
 var sourceFolder = path.join(rootFolder, userDefinedSourceFolder || '.');
 var folder = sourceFolder + "/**/";
@@ -51,7 +52,16 @@ var initFiles = [
     folder + "*.css"
 ];
 debug_1.default.info('Starting up..');
-var perFileTransformers = [];
+var perFileTransformers = [
+    {
+        name: "FileCategorizer",
+        options: {
+            some: "option"
+        },
+        extensions: [".js", ".jsx", ".html", ".css"],
+        transform: FileCategorizer_1.default
+    }
+];
 var bundleTransformers = [];
 var compiler = new compiler_1.default({
     rootFolder: rootFolder,
@@ -83,7 +93,7 @@ function run() {
                 case 0:
                     debug_1.default.log("Doing initial compilation on " + initFiles.length + " file(s).");
                     return [4 /*yield*/, runWithPerformanceCalc({
-                            sourceFiles: initFiles
+                            sourceFilePaths: initFiles
                         })];
                 case 1:
                     _a.sent();
@@ -95,7 +105,7 @@ function run() {
                                     debug_1.default.log('--------------------------------------------------------------------------------');
                                     debug_1.default.log(name + " changed. Recompiling bundle..");
                                     return [4 /*yield*/, runWithPerformanceCalc({
-                                            sourceFiles: initFiles
+                                            sourceFilePaths: initFiles
                                         })];
                                 case 1:
                                     _a.sent();

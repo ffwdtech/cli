@@ -58,8 +58,8 @@ var Compiler = /** @class */ (function () {
         var rootFolder = _a.rootFolder, perFileTransformers = _a.perFileTransformers, bundleTransformers = _a.bundleTransformers;
         this.buildId = uuid.v4();
         this.sourceBaseDirectory = path.join(process.cwd(), './src');
-        this.outputDirectory = path.join(rootFolder, './dist');
-        this.buildDirectory = path.join(rootFolder, './build');
+        this.outputDirectory = path.join(rootFolder, './ffwd-dist');
+        this.buildDirectory = path.join(rootFolder, "./ffwd-build");
         this.perFileTransformers = perFileTransformers;
         this.bundleTransformers = bundleTransformers;
         this.bundles = {};
@@ -79,36 +79,39 @@ var Compiler = /** @class */ (function () {
         return bundleTarget.toString();
     };
     /**
-     * Run the configured transformers on a file in a stream
-     * @param {vinyl-fs.file} file  A vinyl-fs file
+     * Run the configured per-file transformers on a file in a stream
+     * @param {vinyl-fs.file} inputFile  A vinyl-fs file
      */
-    Compiler.prototype.runTransformersOnFileStreamItem = function (file) {
+    Compiler.prototype.transformSourceFile = function (inputFile) {
         return __awaiter(this, void 0, void 0, function () {
-            var input, output, _i, _a, transformer, e_1, outputContentsBuffer, bundleTarget, relativeSourceFilePath, outputFilePath, outputFile;
+            var outputFile, _i, _a, transformer, e_1, outputContentsBuffer, bundleTarget, relativeSourceFilePath, outputFilePath;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        input = {
-                            contents: file.contents.toString('utf8')
+                        outputFile = {
+                            name: inputFile.name,
+                            path: inputFile.path,
+                            params: {},
+                            sourcemap: null,
+                            contents: inputFile.contents.toString('utf8')
                         };
-                        output = input;
                         _i = 0, _a = this.perFileTransformers;
                         _b.label = 1;
                     case 1:
                         if (!(_i < _a.length)) return [3 /*break*/, 6];
                         transformer = _a[_i];
                         if (!(!transformer.extensions ||
-                            transformer.extensions.find(function (extension) { return file.path.endsWith(extension); }))) return [3 /*break*/, 5];
-                        debug_1.default.trace("Applying transformer " + transformer.name + " to file " + file.path);
+                            transformer.extensions.find(function (extension) { return inputFile.path.endsWith(extension); }))) return [3 /*break*/, 5];
+                        debug_1.default.trace("Applying transformer " + transformer.name + " to file " + outputFile.path);
                         _b.label = 2;
                     case 2:
                         _b.trys.push([2, 4, , 5]);
                         return [4 /*yield*/, transformer.transform({
-                                input: output.contents,
+                                file: outputFile,
                                 options: transformer.options
                             })];
                     case 3:
-                        output = _b.sent();
+                        outputFile = _b.sent();
                         return [3 /*break*/, 5];
                     case 4:
                         e_1 = _b.sent();
@@ -118,29 +121,28 @@ var Compiler = /** @class */ (function () {
                         _i++;
                         return [3 /*break*/, 1];
                     case 6:
-                        outputContentsBuffer = Buffer.from(output.contents);
-                        bundleTarget = this.determineBundleTarget(file);
-                        relativeSourceFilePath = file.path.substring(this.sourceBaseDirectory.length, file.path.length);
+                        outputContentsBuffer = Buffer.from(outputFile.contents);
+                        bundleTarget = this.determineBundleTarget(inputFile);
+                        relativeSourceFilePath = inputFile.path.substring(this.sourceBaseDirectory.length, inputFile.path.length);
                         outputFilePath = path.join(this.buildDirectory, bundleTarget, // Add the bundle target in the output directory
                         relativeSourceFilePath);
-                        outputFile = {
-                            bundleTarget: bundleTarget,
-                            file: new Vinyl({
-                                cwd: file.cwd,
-                                base: this.buildDirectory,
-                                path: outputFilePath,
-                                contents: outputContentsBuffer,
-                                overwrite: true,
-                                sourcemaps: true
-                            })
-                        };
-                        return [2 /*return*/, outputFile];
+                        return [2 /*return*/, {
+                                bundleTarget: bundleTarget,
+                                file: new Vinyl({
+                                    cwd: inputFile.cwd,
+                                    base: this.buildDirectory,
+                                    path: outputFilePath,
+                                    contents: outputContentsBuffer,
+                                    overwrite: true,
+                                    sourcemaps: true
+                                })
+                            }];
                 }
             });
         });
     };
     Compiler.prototype.compile = function (_a) {
-        var sourceFiles = _a.sourceFiles;
+        var sourceFilePaths = _a.sourceFilePaths;
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_b) {
@@ -149,22 +151,22 @@ var Compiler = /** @class */ (function () {
                         // Wrap vinyl-fs with highland so we can do functional
                         // operations on the vinyl stream.
                         //
-                        var src = H(vfs.src(sourceFiles));
-                        //
-                        // Process affected files one-by-one.
-                        //
+                        var src = H(vfs.src(sourceFilePaths));
                         src.errors(function (err) {
                             debug_1.default.error(err);
                             reject(err);
-                        }).flatMap(function (file) {
+                        }).flatMap(function (sourceFile) {
                             return H(function (push, next) {
+                                //
+                                // Process affected files one-by-one.
+                                //
                                 push(null, H(new Promise(function (res, rej) { return __awaiter(_this, void 0, void 0, function () {
                                     var _a;
                                     return __generator(this, function (_b) {
                                         switch (_b.label) {
                                             case 0:
                                                 _a = res;
-                                                return [4 /*yield*/, this.runTransformersOnFileStreamItem(file)];
+                                                return [4 /*yield*/, this.transformSourceFile(sourceFile)];
                                             case 1:
                                                 _a.apply(void 0, [_b.sent()]);
                                                 return [2 /*return*/];
