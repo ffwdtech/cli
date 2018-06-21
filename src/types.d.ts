@@ -6,3 +6,4 @@ declare module 'rollup-plugin-resolve';
 declare module 'rollup-plugin-commonjs';
 declare module 'rollup-plugin-uglify';
 declare module 'rollup-plugin-node-resolve';
+declare module 'require-from-string';

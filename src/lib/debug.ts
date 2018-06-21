@@ -14,16 +14,16 @@ enum LogTypes {
 };
 
 enum LogColors {
-  emergency = "red",
-  alert = "red",
-  critical = "red",
-  error = "red",
-  warn = "yellow",
-  notice = "yellow",
+  emergency = "bgRed",
+  alert = "bgRed",
+  critical = "bgRed",
+  error = "bgMagenta",
+  warn = "bgYellow",
+  notice = "bgYellow",
   info = "cyan",
-  log = "white",
-  debug = "gray",
-  trace = "gray"
+  log = "green",
+  debug = "yellow",
+  trace = "magenta"
 }
 
 const debug = {
@@ -33,7 +33,7 @@ const debug = {
     function s(_d:number) {
       return ("0"+_d.toString()).slice(-2);
     }
-    console.log(colors[LogColors[type]](`${s(d.getHours())}:${s(d.getMinutes())}:${s(d.getSeconds())} [${type}]`, args.join(' ')));
+    console.log(`${s(d.getHours())}:${s(d.getMinutes())}:${s(d.getSeconds())} [${colors[LogColors[type]](type)}]`, args.join(' '));
   },
   
   emergency(...args: any[])  { this._log(LogTypes.emergency, args); },

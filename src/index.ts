@@ -27,7 +27,7 @@ const perFileTransformers:any[] = [
     options: {
       some: "option"
     },
-    extensions: [".js", ".jsx", ".html", ".css"],
+    extensions: [".js", ".html", ".css"],
     transform: FileCategorizer
   }
 ];

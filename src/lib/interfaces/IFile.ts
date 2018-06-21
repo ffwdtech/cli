@@ -1,5 +1,4 @@
 interface IFile {
-  name: string,
   path: string,
   params: object,
   contents: string,

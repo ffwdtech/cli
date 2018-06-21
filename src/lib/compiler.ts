@@ -75,8 +75,7 @@ class Compiler {
    */
   async transformSourceFile(inputFile:any):Promise<any> {
 
-    let outputFile:IFile = {
-      name: inputFile.name,
+    let outputFile: IFile = {
       path: inputFile.path,
       params: {},
       sourcemap: null,
@@ -92,7 +91,7 @@ class Compiler {
       if (!transformer.extensions ||
         transformer.extensions.find((extension: string) => inputFile.path.endsWith(extension))) {
 
-        debug.trace(`Applying transformer ${transformer.name} to file ${outputFile.path}`);
+        debug.debug(`Applying transformer ${transformer.name} to file ${outputFile.path}`);
 
         try {
           outputFile = await transformer.transform({
