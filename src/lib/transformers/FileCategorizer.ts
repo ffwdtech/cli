@@ -10,7 +10,6 @@ async function transform({
   debug.trace(`Transformer FileCategorizer running on ${JSON.stringify(file)} with options ${JSON.stringify(options)}`);
 
   // Register Router instances
-
   
 
   return file;
