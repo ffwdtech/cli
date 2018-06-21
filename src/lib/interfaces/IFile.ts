@@ -1,8 +1,9 @@
+import IFileParams from "./IFileParams";
+
 interface IFile {
   path: string,
-  params: object,
-  contents: string,
-  sourcemap?: string
+  params: IFileParams,
+  contents: string
 };
 
 export { IFile };

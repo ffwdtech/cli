@@ -73,12 +73,13 @@ class Compiler {
    * Run the configured per-file transformers on a file in a stream
    * @param {vinyl-fs.file} inputFile  A vinyl-fs file
    */
-  async transformSourceFile(inputFile:any):Promise<any> {
+  async perFileTransform(inputFile:any):Promise<any> {
 
     let outputFile: IFile = {
       path: inputFile.path,
-      params: {},
-      sourcemap: null,
+      params: {
+        moduleType: null
+      },
       contents: inputFile.contents.toString('utf8')
     };
 
@@ -135,6 +136,7 @@ class Compiler {
 
     return {
       bundleTarget: bundleTarget,
+      fileParams: outputFile.params,
       file: new Vinyl({
         cwd: inputFile.cwd,
         base: this.buildDirectory,
@@ -147,6 +149,10 @@ class Compiler {
 
   }
 
+  /**
+   * Compile all files in sourceFilePaths
+   * @param {sourceFilePaths} string[]  Glob selector(s) with source file paths to compile into app
+   */
   async compile({
     sourceFilePaths
   }: ICompilerInput) {
@@ -166,12 +172,10 @@ class Compiler {
       }).flatMap((sourceFile: any) => {
         return H((push: any, next: any) => {
 
-          //
-          // Process affected files one-by-one.
-          //
+          // Run per-file transformers
 
           push(null, H(new Promise(async (res, rej) => {
-            res(await this.transformSourceFile(sourceFile));
+            res(await this.perFileTransform(sourceFile));
           })));
           
           push(null, H.nil);

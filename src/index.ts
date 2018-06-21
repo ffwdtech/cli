@@ -1,72 +1,49 @@
-import * as path from "path";
-import debug from "./lib/debug";
-import Compiler from "./lib/compiler";
-import * as  watch from "node-watch";
-import { performance } from "perf_hooks";
-import * as colors from "colors/safe";
-import FileCategorizer from "./lib/transformers/FileCategorizer";
+import * as program from "commander";
+import * as config from "../package.json";
 
-const userDefinedSourceFolder = './build';
-const rootFolder = process.cwd();
-const sourceFolder = path.join(rootFolder, userDefinedSourceFolder || '.');
+program
+  .version(config.version)
+  .name("ffwd")
+//.option("-f, --file <file.json>", "Create flock from file");
 
-const folder = `${sourceFolder}/**/`;
-
-const initFiles = [
-  `${folder}*.js`,
-  `${folder}*.jsx`,
-  `${folder}*.html`,
-  `${folder}*.css`
-];
-
-debug.info('Starting up..');
-
-const perFileTransformers:any[] = [
-  {
-    name: "FileCategorizer",
-    options: {
-      some: "option"
-    },
-    extensions: [".js", ".html", ".css"],
-    transform: FileCategorizer
-  }
-];
-const bundleTransformers:any[] = [];
-
-const compiler = new Compiler({
-  rootFolder,
-  perFileTransformers,
-  bundleTransformers
-});
-
-async function runWithPerformanceCalc(options: any) {
-  var t0 = performance.now();
-  await compiler.compile(options);
-  var t1 = performance.now();
-  debug.debug(`Done in ${t1 - t0}ms.`);
-}
-
-async function run() {
-  
-  debug.log(`Doing initial compilation on ${initFiles.length} file(s).`);
-
-  await runWithPerformanceCalc({
-    sourceFilePaths: initFiles
+program
+  .command("create")
+  .alias("c")
+  .description("Create a new ffwd project")
+  .action((cmd: Function, options: object) => {
+    console.log(cmd, options);
   });
 
-  debug.info('Starting file watcher.');
+program
+  .command("run")
+  .alias("r")
+  .description("Run the ffwd project in current directory")
+  .action((cmd: Function, options: object) => {
 
-  watch(sourceFolder, { recursive: true }, async (evt:any, name:string) => {
+    //console.log(cmd, options);
 
-    debug.log('--------------------------------------------------------------------------------');
-    debug.log(`${name} changed. Recompiling bundle..`);
+    const port = parseInt(process.env["PORT"]) || 3000;
+    const ip = process.env["IP"] || "127.0.0.1";
 
-    await runWithPerformanceCalc({
-      sourceFilePaths: initFiles
-    });
+    //const server = new FFWDServer(ip, port);
+    //server.startServer();
 
   });
 
-}
+/*
+program
+  .command("build")
+  .alias("b")
+  .description("Build the ffwd project in current directory")
+  .action(async (cmd: Function, options: object) => {
 
-run();
+    const builder = new Builder();
+    builder.setRootFolder(process.cwd());
+    builder.getConfiguration();
+
+    await builder.build();
+
+  });
+*/
+
+program.parse(process.argv);
