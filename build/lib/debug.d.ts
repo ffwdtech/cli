@@ -1,14 +1,14 @@
 declare enum LogTypes {
-    EMERGENCY = "emergency",
-    ALERT = "alert",
-    CRITICAL = "critical",
-    ERROR = "error",
-    WARN = "warn",
-    NOTICE = "notice",
-    INFO = "info",
-    LOG = "log",
-    DEBUG = "debug",
-    TRACE = "trace",
+    emergency = "emergency",
+    alert = "alert",
+    critical = "critical",
+    error = "error",
+    warn = "warn",
+    notice = "notice",
+    info = "info",
+    log = "log",
+    debug = "debug",
+    trace = "trace",
 }
 declare const debug: {
     _log(type: any, args: any[]): void;

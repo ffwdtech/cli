@@ -50,7 +50,7 @@ var initFiles = [
     folder + "*.html",
     folder + "*.css"
 ];
-debug_1.default.log('Starting up..');
+debug_1.default.info('Starting up..');
 var perFileTransformers = [];
 var bundleTransformers = [];
 var compiler = new compiler_1.default({
@@ -69,7 +69,7 @@ function runWithPerformanceCalc(options) {
                 case 1:
                     _a.sent();
                     t1 = perf_hooks_1.performance.now();
-                    debug_1.default.log("Done in " + (t1 - t0) + "ms.");
+                    debug_1.default.debug("Done in " + (t1 - t0) + "ms.");
                     return [2 /*return*/];
             }
         });
@@ -81,13 +81,13 @@ function run() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    debug_1.default.log('Doing initial compilation..');
+                    debug_1.default.log("Doing initial compilation on " + initFiles.length + " file(s).");
                     return [4 /*yield*/, runWithPerformanceCalc({
                             sourceFiles: initFiles
                         })];
                 case 1:
                     _a.sent();
-                    debug_1.default.log('Initial compilation done. Starting file watcher.');
+                    debug_1.default.info('Starting file watcher.');
                     watch(sourceFolder, { recursive: true }, function (evt, name) { return __awaiter(_this, void 0, void 0, function () {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
