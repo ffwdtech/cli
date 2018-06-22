@@ -6,8 +6,6 @@ import { performance } from "perf_hooks";
 import * as colors from "colors/safe";
 import FileCategorizer from "./lib/transformers/FileCategorizer";
 
-import localServer from "./services/localServer";
-
 const userDefinedSourceFolder = './build';
 const rootFolder = process.cwd();
 const sourceFolder = path.join(rootFolder, userDefinedSourceFolder || '.');
@@ -20,8 +18,6 @@ const initFiles = [
   `${folder}*.html`,
   `${folder}*.css`
 ];
-
-debug.info('FFWD starting up..');
 
 const perFileTransformers:any[] = [
   {

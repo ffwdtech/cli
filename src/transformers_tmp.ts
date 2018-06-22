@@ -1,4 +1,29 @@
 
+/**
+ * Determine bundle target for a file (client, server or both)
+ * @param {file} file A vinyl-fs file
+ */
+determineBundleTarget(file: Vinyl) {
+
+  let bundleTarget = BundleTarget.both; // Default to both targets
+
+  if (file.path.includes('.client') || file.path.includes('/client/')) {
+    bundleTarget = BundleTarget.client;
+  }
+  else if (file.path.includes('.server') || file.path.includes('/server/')) {
+    bundleTarget = BundleTarget.server;
+  }
+
+  return bundleTarget.toString();
+
+}
+
+// Determine bundle target (client, server or both)
+const bundleTarget = this.determineBundleTarget(inputFile);
+
+
+//////////////////////////////////////////
+
 const perFileTransformers = [
   { 
     name: 'buble',

@@ -10,8 +10,10 @@ import BundleTarget from "./enums/BundleTarget";
 import ICompilerConstructor from "./interfaces/ICompilerConstructor";
 import ICompilerInput from "./interfaces/ICompilerInput";
 
+import * as ffwd from "ffwd";
 import ITransform from "./interfaces/ITransform";
-import IFile from "./interfaces/IFile";
+import IModule from "./interfaces/IModule";
+import { Application } from "ffwd/build/Application";
 
 /**
  * 
@@ -25,15 +27,19 @@ import IFile from "./interfaces/IFile";
  */
 class Compiler {
 
+  app: Application;
+  appConfiguration: any;
   sourceBaseDirectory: string;
   outputDirectory: string;
   buildDirectory: string;
   perFileTransformers: any[];
   bundleTransformers: any[];
-  bundles: any;
+  modules: any;
   buildId: string;
 
   constructor({
+    app,
+    appConfiguration,
     rootFolder,
     perFileTransformers,
     bundleTransformers
@@ -41,32 +47,15 @@ class Compiler {
 
     this.buildId = uuid.v4();
 
+    this.app = app;
+    this.appConfiguration = appConfiguration;
+
     this.sourceBaseDirectory = path.join(process.cwd(), './src');
     this.outputDirectory = path.join(rootFolder, './ffwd-dist');
     this.buildDirectory = path.join(rootFolder, `./ffwd-build`);
     this.perFileTransformers = perFileTransformers;
     this.bundleTransformers = bundleTransformers;
-    this.bundles = {};
 
-  }
-
-  /**
-   * Determine bundle target for a file (client, server or both)
-   * @param {file} file A vinyl-fs file
-   */
-  determineBundleTarget(file:Vinyl) {
-
-    let bundleTarget = BundleTarget.both; // Default to both targets
-
-    if (file.path.includes('.client') || file.path.includes('/client/')) {
-      bundleTarget = BundleTarget.client;
-    }
-    else if (file.path.includes('.server') || file.path.includes('/server/')) {
-      bundleTarget = BundleTarget.server;
-    }
-
-    return bundleTarget.toString();
-    
   }
 
   /**
@@ -75,28 +64,25 @@ class Compiler {
    */
   async perFileTransform(inputFile:any):Promise<any> {
 
-    let outputFile: IFile = {
+    let outputModule: IModule = {
       path: inputFile.path,
-      params: {
-        moduleType: null
-      },
+      module: null,
+      moduleType: null,
       contents: inputFile.contents.toString('utf8')
     };
-
-    //
-    // Run per-file transformers
-    //
 
     for (let transformer of this.perFileTransformers) {
 
       if (!transformer.extensions ||
         transformer.extensions.find((extension: string) => inputFile.path.endsWith(extension))) {
 
-        debug.debug(`Applying transformer ${transformer.name} to file ${outputFile.path}`);
+        debug.debug(`Applying transformer ${transformer.name} to file ${outputModule.path}`);
 
         try {
-          outputFile = await transformer.transform({
-            file: outputFile,
+          outputModule = await transformer.transform({
+            app: this.app,
+            appConfiguration: this.appConfiguration,
+            file: outputModule,
             options: transformer.options
           });
         }
@@ -110,18 +96,13 @@ class Compiler {
 
     // Create output buffer for file that Vinyl can use
     let outputContentsBuffer = Buffer.from(
-      outputFile.contents
+      outputModule.contents
     );
 
-    // Determine bundle target (client, server or both)
-    const bundleTarget = this.determineBundleTarget(inputFile);
-
-    //
     // Get the path difference between the source base directory and
     // the directory of the file currently being processed.
     // For example, if base is `/test/src` and file is at
     // `/test/src/foo/index.js`, this returns `/foo/index.js.`
-    //
 
     const relativeSourceFilePath = inputFile.path.substring(
       this.sourceBaseDirectory.length,
@@ -130,13 +111,12 @@ class Compiler {
 
     const outputFilePath = path.join(
       this.buildDirectory,
-      bundleTarget, // Add the bundle target in the output directory
       relativeSourceFilePath
     );
 
     return {
-      bundleTarget: bundleTarget,
-      fileParams: outputFile.params,
+      module: outputModule,
+      moduleType: outputModule.moduleType,
       file: new Vinyl({
         cwd: inputFile.cwd,
         base: this.buildDirectory,
@@ -170,6 +150,7 @@ class Compiler {
         debug.error(err);
         reject(err);
       }).flatMap((sourceFile: any) => {
+
         return H((push: any, next: any) => {
 
           // Run per-file transformers
@@ -181,24 +162,30 @@ class Compiler {
           push(null, H.nil);
 
         });
+
       }).parallel(1024)
-        .group('bundleTarget')
+        .group("moduleType")
         .apply(async (files:any) => {
 
-          debug.trace('Starting bundle transformations.');
+          debug.trace("Registering modules.");
 
           //
-          // Gather bundles
+          // Gather modules
           //
 
-          this.bundles = {};
+          this.modules = {};
 
-          // Initialize empty arrays
-          if (!files[BundleTarget.client]) files[BundleTarget.client] = [];
-          if (!files[BundleTarget.server]) files[BundleTarget.server] = [];
-          if (!files[BundleTarget.both]) files[BundleTarget.both] = [];
+          console.log(files);
 
-          this.bundles[BundleTarget.client] = {
+          ffwd.Enums.FFWDModuleType.forEach((moduleType:string) => {
+            
+            this.app.registerModule(moduleType, )
+
+          });
+
+          /*
+
+          this.modules[BundleTarget.client] = {
             target: BundleTarget.client,
             contents: null,
             files: files[BundleTarget.client].concat(files[BundleTarget.both]).map((targetAndFile: any) => {
@@ -214,7 +201,7 @@ class Compiler {
             })
           };
 
-          this.bundles[BundleTarget.server] = {
+          this.modules[BundleTarget.server] = {
             target: BundleTarget.server,
             contents: null,
             files: files[BundleTarget.server].concat(files[BundleTarget.both]).map((targetAndFile: any) => {
@@ -297,6 +284,7 @@ class Compiler {
             }
 
           }
+          */
 
           resolve();
 

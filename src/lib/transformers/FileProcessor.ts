@@ -10,7 +10,7 @@ async function transform({
   options
 }: ITransform, cb: any): Promise<IFile> {
 
-  debug.trace(`Transformer FileCategorizer running on ${JSON.stringify(file)} with options ${JSON.stringify(options)}`);
+  debug.trace(`Transformer FileProcessor running on ${JSON.stringify(file)} with options ${JSON.stringify(options)}`);
 
   if(file.path.endsWith(".js")) {
 
@@ -19,17 +19,17 @@ async function transform({
     if (requiredModule.default) {
 
       const moduleDefaultExport = requiredModule.default;
-      file.params.module = moduleDefaultExport;
+      file.module = moduleDefaultExport;
 
       // Detect module instances
 
       switch (moduleDefaultExport.constructor) {
         case Route:
-          file.params.moduleType = Enums.FFWDModuleType.Route;
+          file.moduleType = Enums.FFWDModuleType.Route;
           debug.debug(`Detected Route module "${moduleDefaultExport.name}" for URI "${moduleDefaultExport.uri}" at ${file.path}`);
           break;
         case Method:
-          file.params.moduleType = Enums.FFWDModuleType.Method;
+          file.moduleType = Enums.FFWDModuleType.Method;
           debug.debug(`Detected Method module "${moduleDefaultExport.name}" at ${file.path}`);
           break;
         default:
