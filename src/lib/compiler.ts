@@ -11,9 +11,8 @@ import ICompilerConstructor from "./interfaces/ICompilerConstructor";
 import ICompilerInput from "./interfaces/ICompilerInput";
 
 import * as ffwd from "ffwd";
-import ITransform from "./interfaces/ITransform";
+import ITransformInput from "./interfaces/ITransformInput";
 import IModule from "./interfaces/IModule";
-import { Application } from "ffwd/build/Application";
 
 /**
  * 
@@ -27,7 +26,7 @@ import { Application } from "ffwd/build/Application";
  */
 class Compiler {
 
-  app: Application;
+  app: ffwd.Application;
   appConfiguration: any;
   sourceBaseDirectory: string;
   outputDirectory: string;
@@ -177,11 +176,13 @@ class Compiler {
 
           console.log(files);
 
+          /*
           ffwd.Enums.FFWDModuleType.forEach((moduleType:string) => {
             
             this.app.registerModule(moduleType, )
 
           });
+          */
 
           /*
 

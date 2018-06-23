@@ -12,7 +12,6 @@ async function run(app:Application, appConfiguration:any) {
 
   const rootFolder = process.cwd();
 
-  console.log("appConfiguration", appConfiguration);
   const sourceFolderAbsolute = path.join(rootFolder, appConfiguration.get("compiler").sourceFolder || '.');
 
   const initFiles = [
