@@ -13,6 +13,7 @@ import ICompilerInput from "./interfaces/ICompilerInput";
 import * as ffwd from "ffwd";
 import ITransformInput from "./interfaces/ITransformInput";
 import ITransformFile from "./interfaces/ITransformFile";
+import { Application } from "ffwd/build/Application";
 
 /**
  * 
@@ -134,9 +135,9 @@ class Compiler {
    */
   async compile({
     sourceFilePaths
-  }: ICompilerInput) {
+  }: ICompilerInput):Promise<Application> {
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Application>((resolve, reject) => {
 
       //
       // Wrap vinyl-fs with highland so we can do functional
@@ -284,7 +285,7 @@ class Compiler {
           }
           */
 
-          resolve();
+          resolve(this.app);
 
         });
 

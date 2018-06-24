@@ -7,6 +7,7 @@ import * as  watch from "node-watch";
 import { performance } from "perf_hooks";
 import * as colors from "colors/safe";
 import FileProcessor from "../lib/transformers/FileProcessor";
+import LocalServer from "../services/LocalServer";
 
 async function run(app:Application, appConfiguration:any): Promise<void> {
 
@@ -42,7 +43,7 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
     bundleTransformers
   });
 
-  async function compileWithPerformanceCalc(options: any) {
+  async function compileWithPerformanceCalc(options: any): Promise<Application> {
     var t0 = performance.now();
     const ret = await compiler.compile(options);
     var t1 = performance.now();
@@ -54,11 +55,18 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
 
     debug.log(`Initial compilation of ${initFiles.length} file(s).`);
 
-    const ret = await compileWithPerformanceCalc({
+    app = await compileWithPerformanceCalc({
       sourceFilePaths: initFiles
     });
 
-    console.log(ret);
+    console.log(app);
+
+    const server = new LocalServer({
+      app,
+      appConfiguration,
+      ip: "127.0.0.1",
+      port: 3033
+    });
 
     debug.info('Starting file watcher.');
 
@@ -67,11 +75,11 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
       debug.log('--------------------------------------------------------------------------------');
       debug.log(`${name} changed. Recompiling bundle..`);
 
-      const ret = await compileWithPerformanceCalc({
+      app = await compileWithPerformanceCalc({
         sourceFilePaths: initFiles
       });
 
-      console.log(ret);
+      console.log(app);
 
     });
 
