@@ -1,7 +1,7 @@
 import ITransform from "../interfaces/ITransform";
 import IFile from "../interfaces/IFile";
 import debug from "../debug";
-import { Method, Route, Enums } from "ffwd";
+import { Method, Route, Enums, Constants } from "ffwd";
 import requireFromString from "../helpers/requireFromString";
 import IFileParams from "../interfaces/IFileParams";
 import { ITransformInput } from "../interfaces/ITransformInput";
@@ -17,28 +17,30 @@ async function transform({
 
   if(file.path.endsWith(".js")) {
 
-    const requiredModule = requireFromString(file.contents, file.path);
+    const requiredModuleFromString = requireFromString(file.contents, file.path);
 
-    if (requiredModule.default) {
+    if (requiredModuleFromString.default) {
 
-      const moduleDefaultExport = requiredModule.default;
-      file.module = moduleDefaultExport;
+      const newModule = requiredModuleFromString.default; // Required module
+      const parentClassOfModule = Object.getPrototypeOf(newModule); // Get the class that this module (possibly) extends
 
       // Detect module instances
+      Constants.ModuleTypesWithClasses.forEach((moduleTypeWithClass:any) => {
 
-      switch (moduleDefaultExport.constructor) {
-        case Route:
-          file.moduleType = Enums.FFWDModuleType.Route;
-          debug.debug(`Detected Route module "${moduleDefaultExport.name}" for URI "${moduleDefaultExport.uri}" at ${file.path}. Registering with application.`);
-          break;
-        case Method:
-          file.moduleType = Enums.FFWDModuleType.Method;
-          debug.debug(`Detected Method module "${moduleDefaultExport.name}" at ${file.path}. Registering with application.`);
-          break;
-        default:
-          debug.debug(`File ${file.path} (constructor: ${moduleDefaultExport.constructor}) was not detected as a FFWD module. Extend the default export from a FFWD module to detect it.`);
-          break;
-      }
+        console.log(newModule.name, Object.getPrototypeOf(newModule).name, moduleTypeWithClass.class.name);
+
+        if (
+          newModule.constructor === moduleTypeWithClass.class ||  // Instantiates a module (Route, Method, etc.)
+          parentClassOfModule.name === moduleTypeWithClass.type   // Extends from a class (Entity, etc.) 
+        ) {
+
+          debug.debug(`Detected ${moduleTypeWithClass.type} module "${newModule.name}" at ${file.path}`);
+
+        }
+
+      });
+
+      file.module = newModule; // Include module in the file object that is passed forward in the compilation process
 
     }
     else {

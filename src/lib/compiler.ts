@@ -166,7 +166,7 @@ class Compiler {
         .group("moduleType")
         .apply(async (files:any) => {
 
-          debug.trace("Registering modules.");
+          debug.trace("Bundling modules.");
 
           //
           // Gather modules
