@@ -1,10 +1,9 @@
 import * as express from "express";
-import * as ffwd from "ffwd";
-import { Route, Enums, Interfaces } from "ffwd";
+import { Application, Route, Enums, Interfaces } from "ffwd";
 import { debug } from "../lib/debug";
 
 interface ILocalServerConstructor {
-  app: ffwd.Application,
+  app: Application,
   appConfiguration: any,
   ip: string,
   port: number
@@ -12,10 +11,12 @@ interface ILocalServerConstructor {
 
 class LocalServer {
 
-  app: express.Application;
-  bindIp: string;
-  bindPort: number;
+  app: Application;
+  webApp: express.Application;
+  ip: string;
+  port: number;
   routes: Route[];
+  server: any;
 
   constructor({
     app,
@@ -26,23 +27,40 @@ class LocalServer {
 
     console.log("hi");
 
-    this.app = express();
-    const routeModules = app.getModulesByType({
-      type: Enums.FFWDModuleType.Route
-    });
-    console.log(routeModules, app.modules, Enums.FFWDModuleType.Route);
-    this.registerRoutesFromModules(routeModules);
-    this.app.listen(port, () => debug.info(`Listening at http://${ip}:${port}`));
+    this.webApp = express();
+    this.app = app;
+    this.port = port;
+    this.ip = ip;
 
+    return this;
 
   }
 
-  registerRoutesFromModules(routes: Interfaces.IApplicationModule[]) {
+  setApp(app: Application) {
+    this.app = app;
+  }
 
-    routes.forEach((routeModule: Interfaces.IApplicationModule) => {
+  initialize() {
+
+    const routeModules = this.app.getModulesByType({
+      type: Enums.FFWDModuleType.Route
+    });
+
+    if(this.server) this.server.close();
+
+    this.registerRoutesFromModules(routeModules);
+    this.server = this.webApp.listen(this.port, () => debug.info(`Listening at http://${this.ip}:${this.port}`));
+
+    return this;
+
+  }
+
+  registerRoutesFromModules(routeModules: Interfaces.IApplicationModule[]) {
+
+    routeModules.forEach((routeModule: Interfaces.IApplicationModule) => {
       const route: Route = routeModule.moduleExports;
-      debug.trace(`Registering module ${route.uri} in Express`);
-      this.app.route(route.uri).all(route.action);
+      debug.trace(`LocalServer.registerRoutesFromModules: Registering route ${route.uri} (${routeModule.name})`);
+      this.webApp.route(route.uri).all(route.action);
     });
 
   }

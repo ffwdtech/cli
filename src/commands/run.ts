@@ -66,20 +66,21 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
       appConfiguration,
       ip: "127.0.0.1",
       port: 3033
-    });
+    }).initialize();
 
     debug.info('Starting file watcher.');
 
     watch(sourceFolderAbsolute, { recursive: true }, async (evt: any, name: string) => {
 
-      debug.log('--------------------------------------------------------------------------------');
-      debug.log(`${name} changed. Recompiling bundle..`);
+      debug.info(`${name} changed. Recompiling bundle..`);
 
       app = await compileWithPerformanceCalc({
         sourceFilePaths: initFiles
       });
 
-      console.log(app);
+      server.setApp(app);
+      server.initialize();
+
 
     });
 
