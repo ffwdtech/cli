@@ -13,6 +13,7 @@ import * as commonjs from "rollup-plugin-commonjs";
 import * as uglify from "rollup-plugin-uglify";
 import IBundleTransformerInput from "../interfaces/IBundleTransformerInput";
 
+/*
 const FFWDFunctionType = {
   Route: "Route",
   Method: "Method"
@@ -78,6 +79,8 @@ async function runTransformersOnFileStreamItem({
  * @param {Object} bundle.files   Bundle files as VFS
  * @param {Object} options        Transformer options
  */
+
+ /*
 async function transform({
   target,
   contents,
@@ -128,3 +131,4 @@ export {
 }
 
 export default transform;
+*/

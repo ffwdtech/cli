@@ -12,7 +12,7 @@ import ICompilerInput from "./interfaces/ICompilerInput";
 
 import * as ffwd from "ffwd";
 import ITransformInput from "./interfaces/ITransformInput";
-import IModule from "./interfaces/IModule";
+import ITransformFile from "./interfaces/ITransformFile";
 
 /**
  * 
@@ -63,7 +63,7 @@ class Compiler {
    */
   async perFileTransform(inputFile:any):Promise<any> {
 
-    let outputModule: IModule = {
+    let outputModule: ITransformFile = {
       path: inputFile.path,
       module: null,
       moduleType: null,
@@ -178,12 +178,9 @@ class Compiler {
 
           /*
           ffwd.Enums.FFWDModuleType.forEach((moduleType:string) => {
-            
             this.app.registerModule(moduleType, )
-
           });
           */
-
           /*
 
           this.modules[BundleTarget.client] = {

@@ -1,10 +1,10 @@
-import IFile from "./IFile";
-import { Application } from "ffwd/build/Application";
+import ITransformFile from "./ITransformFile";
+import { Application } from "ffwd";
 
 interface ITransformInput {
   app: Application,
   appConfiguration: any,
-  file: IFile,
+  file: ITransformFile,
   options: object
 };
 

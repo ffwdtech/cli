@@ -1,7 +1,7 @@
-import IFile from "./IFile";
+import ITransformFile from "./ITransformFile";
 
 interface ITransform {
-  file: IFile,
+  file: ITransformFile,
   options: object
 };
 

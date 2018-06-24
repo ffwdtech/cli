@@ -1,11 +1,11 @@
 import { Enums } from "ffwd";
 
-interface IModule {
+interface ITransformFile {
   path: string,
   moduleType?: Enums.FFWDModuleType,
   module?: Function,
   contents: string
 };
 
-export { IModule };
-export default IModule;
+export { ITransformFile };
+export default ITransformFile;

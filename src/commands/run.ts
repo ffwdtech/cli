@@ -8,7 +8,7 @@ import { performance } from "perf_hooks";
 import * as colors from "colors/safe";
 import FileProcessor from "../lib/transformers/FileProcessor";
 
-async function run(app:Application, appConfiguration:any) {
+async function run(app:Application, appConfiguration:any): Promise<void> {
 
   const rootFolder = process.cwd();
 
@@ -44,18 +44,21 @@ async function run(app:Application, appConfiguration:any) {
 
   async function compileWithPerformanceCalc(options: any) {
     var t0 = performance.now();
-    await compiler.compile(options);
+    const ret = await compiler.compile(options);
     var t1 = performance.now();
     debug.debug(`Done in ${t1 - t0}ms.`);
+    return ret;
   }
 
   async function run() {
 
     debug.log(`Initial compilation of ${initFiles.length} file(s).`);
 
-    await compileWithPerformanceCalc({
+    const ret = await compileWithPerformanceCalc({
       sourceFilePaths: initFiles
     });
+
+    console.log(ret);
 
     debug.info('Starting file watcher.');
 
@@ -64,9 +67,11 @@ async function run(app:Application, appConfiguration:any) {
       debug.log('--------------------------------------------------------------------------------');
       debug.log(`${name} changed. Recompiling bundle..`);
 
-      await compileWithPerformanceCalc({
+      const ret = await compileWithPerformanceCalc({
         sourceFilePaths: initFiles
       });
+
+      console.log(ret);
 
     });
 

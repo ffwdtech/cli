@@ -1,5 +1,5 @@
 import ITransform from "../interfaces/ITransform";
-import IFile from "../interfaces/IFile";
+import ITransformFile from "../interfaces/ITransformFile";
 import debug from "../debug";
 import { Method, Route, Enums, Constants } from "ffwd";
 import requireFromString from "../helpers/requireFromString";
@@ -11,7 +11,7 @@ async function transform({
   appConfiguration,
   file,
   options
-}: ITransformInput, cb: any): Promise<IFile> {
+}: ITransformInput, cb: any): Promise<ITransformFile> {
 
   debug.trace(`Transformer FileProcessor running on ${JSON.stringify(file)} with options ${JSON.stringify(options)}`);
 
@@ -19,28 +19,39 @@ async function transform({
 
     const requiredModuleFromString = requireFromString(file.contents, file.path);
 
+    // We only look at the default export per file right now.
     if (requiredModuleFromString.default) {
 
-      const newModule = requiredModuleFromString.default; // Required module
-      const parentClassOfModule = Object.getPrototypeOf(newModule); // Get the class that this module (possibly) extends
+      // Required module from code. 
+      const newModule = requiredModuleFromString.default;
 
-      // Detect module instances
+      // Get the class that this module (possibly) extends
+      const parentClassOfModule = Object.getPrototypeOf(newModule);
+
+      // Include module in the file object that is passed forward in the compilation process
+      file.module = newModule;
+
+      // Detect module instances.
       Constants.ModuleTypesWithClasses.forEach((moduleTypeWithClass:any) => {
-
-        console.log(newModule.name, Object.getPrototypeOf(newModule).name, moduleTypeWithClass.class.name);
 
         if (
           newModule.constructor === moduleTypeWithClass.class ||  // Instantiates a module (Route, Method, etc.)
           parentClassOfModule.name === moduleTypeWithClass.type   // Extends from a class (Entity, etc.) 
         ) {
 
-          debug.debug(`Detected ${moduleTypeWithClass.type} module "${newModule.name}" at ${file.path}`);
+          debug.debug(`${moduleTypeWithClass.type} module "${newModule.name}" (type: ${newModule.constructor.name}, extends ${parentClassOfModule.name}) at ${file.path}`);
+
+          // Register the module in the application.
+          app.registerModule({
+            name: newModule.name,
+            type: moduleTypeWithClass.type,
+            moduleClass: moduleTypeWithClass.class,
+            moduleExports: newModule
+          });
 
         }
 
       });
-
-      file.module = newModule; // Include module in the file object that is passed forward in the compilation process
 
     }
     else {
