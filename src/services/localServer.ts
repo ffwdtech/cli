@@ -3,9 +3,14 @@ import { Application, Route, Enums, Interfaces } from "ffwd";
 import { debug } from "../lib/debug";
 import { middleware } from "./middleware/index";
 import * as jsdom from "jsdom";
-const { JSDOM } = jsdom;
 import * as React from "react";
 import * as ReactDOMServer from "react-dom/server";
+
+import * as DOM from "react-dom-factories";
+
+const body = DOM.body;
+const div = DOM.div;
+const script = DOM.script;
 
 interface ILocalServerConstructor {
   app: Application,
@@ -14,13 +19,11 @@ interface ILocalServerConstructor {
   port: number
 }
 
-/*
 class MyComponent extends React.Component {
   render() {
-    return <div>Hello World</div>;
+    return `<div>Hello World</div>`;
   }
 }
-*/
 
 class LocalServer {
 
@@ -83,11 +86,13 @@ class LocalServer {
     }));
 
     this.webApp.use((req, res, next) => {
-      const dom = new JSDOM(`<!DOCTYPE html><head><title>${res.ffwd.currentRoute.name}</title></head><body><div id="__root"></div></body>`);
+      //const dom = new JSDOM(`<!DOCTYPE html><head><title>${res.ffwd.currentRoute.name}</title></head><body><div id="__root"></div></body>`);
       //console.log(dom.window.document.querySelector("p").textContent); // "Hello world"
-      res.ffwd.dom = dom;
-      //res.send(ReactDOMServer.renderToString(<MyComponent />));
-      next();
+      //res.ffwd.dom = dom;
+      //res.send(dom);
+      const type = React.createElement(MyComponent);
+      res.send(ReactDOMServer.renderToString(type));
+      //next();
     });
 
     this.server = this.webApp.listen(this.port, () => debug.info(`Listening at http://${this.ip}:${this.port}`));
