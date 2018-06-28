@@ -34,9 +34,9 @@ async function transform({
       // Detect module instances.
       Constants.ModuleTypesWithClasses.forEach((moduleTypeWithClass:any) => {
 
-        if (
+        if (   
           newModule.constructor === moduleTypeWithClass.class ||  // Instantiates a module (Route, Method, etc.)
-          parentClassOfModule.name === moduleTypeWithClass.type   // Extends from a class (Entity, etc.) 
+          parentClassOfModule && parentClassOfModule.name === moduleTypeWithClass.type   // Extends from a class (Entity, etc.) 
         ) {
 
           debug.debug(`${moduleTypeWithClass.type} module "${newModule.name}" (type: ${newModule.constructor.name}, extends ${parentClassOfModule.name}) at ${file.path}`);

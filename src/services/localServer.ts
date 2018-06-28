@@ -27,7 +27,6 @@ class LocalServer {
 
     console.log("hi");
 
-    this.webApp = express();
     this.app = app;
     this.port = port;
     this.ip = ip;
@@ -40,14 +39,23 @@ class LocalServer {
     this.app = app;
   }
 
-  initialize() {
+  close() {
+    if(this.server) {
+      debug.info("Closing server");
+      this.server.close();
+    }
+  }
+
+  start() {
+
+
+    this.close();
 
     const routeModules = this.app.getModulesByType({
       type: Enums.FFWDModuleType.Route
     });
 
-    if(this.server) this.server.close();
-
+    this.webApp = express();
     this.registerRoutesFromModules(routeModules);
     this.server = this.webApp.listen(this.port, () => debug.info(`Listening at http://${this.ip}:${this.port}`));
 
@@ -59,7 +67,7 @@ class LocalServer {
 
     routeModules.forEach((routeModule: Interfaces.IApplicationModule) => {
       const route: Route = routeModule.moduleExports;
-      debug.trace(`LocalServer.registerRoutesFromModules: Registering route ${route.uri} (${routeModule.name})`);
+      debug.trace(`LocalServer.registerRoutesFromModules: Registering route ${route.uri} (${routeModule.name})`, route.action);
       this.webApp.route(route.uri).all(route.action);
     });
 

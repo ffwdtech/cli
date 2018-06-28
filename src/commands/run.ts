@@ -22,6 +22,14 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
     `${sourceFolderAbsolute}/**/*.css`
   ];
 
+  // TODO this should come from all transformer extensions put together
+  const interestedFileExtensions = [
+    ".js",
+    ".jsx",
+    ".html",
+    ".css"
+  ];
+
   const perFileTransformers: any[] = [
     {
       name: "FileProcessor",
@@ -66,21 +74,25 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
       appConfiguration,
       ip: "127.0.0.1",
       port: 3033
-    }).initialize();
+    }).start();
 
     debug.info('Starting file watcher.');
 
     watch(sourceFolderAbsolute, { recursive: true }, async (evt: any, name: string) => {
 
-      debug.info(`${name} changed. Recompiling bundle..`);
+      if(interestedFileExtensions.find((fileExtension:string) => {
+        return name.endsWith(fileExtension);
+      })) {
 
-      app = await compileWithPerformanceCalc({
-        sourceFilePaths: initFiles
-      });
+        debug.info(`${name} changed. Recompiling..`);
 
-      server.setApp(app);
-      server.initialize();
+        app = await compileWithPerformanceCalc({
+          sourceFilePaths: initFiles
+        });
 
+        server.start();
+
+      }
 
     });
 
@@ -90,4 +102,4 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
 
 }
 
-export default run;
+export default run; 
