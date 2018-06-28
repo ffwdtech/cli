@@ -67,8 +67,6 @@ async function run(app:Application, appConfiguration:any): Promise<void> {
       sourceFilePaths: initFiles
     });
 
-    console.log(app);
-
     const server = new LocalServer({
       app,
       appConfiguration,

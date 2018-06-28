@@ -2,6 +2,10 @@ import * as express from "express";
 import { Application, Route, Enums, Interfaces } from "ffwd";
 import { debug } from "../lib/debug";
 import { middleware } from "./middleware/index";
+import * as jsdom from "jsdom";
+const { JSDOM } = jsdom;
+import * as React from "react";
+import * as ReactDOMServer from "react-dom/server";
 
 interface ILocalServerConstructor {
   app: Application,
@@ -9,6 +13,14 @@ interface ILocalServerConstructor {
   ip: string,
   port: number
 }
+
+/*
+class MyComponent extends React.Component {
+  render() {
+    return <div>Hello World</div>;
+  }
+}
+*/
 
 class LocalServer {
 
@@ -25,8 +37,6 @@ class LocalServer {
     ip,
     port
   }: ILocalServerConstructor) {
-
-    console.log("hi");
 
     this.app = app;
     this.port = port;
@@ -54,6 +64,14 @@ class LocalServer {
 
     this.webApp = express();
 
+    // Initialize ffwd namespace for middleware in res
+    this.webApp.use((req, res, next) => {
+      res.ffwd = {
+        currentRoute: null
+      };
+      next();
+    });
+
     // Register Express middleware
     middleware.forEach(fn => {
       this.webApp.use(fn);
@@ -63,6 +81,14 @@ class LocalServer {
     this.registerRoutesFromModules(this.app.getModulesByType({
       type: Enums.FFWDModuleType.Route
     }));
+
+    this.webApp.use((req, res, next) => {
+      const dom = new JSDOM(`<!DOCTYPE html><head><title>${res.ffwd.currentRoute.name}</title></head><body><div id="__root"></div></body>`);
+      //console.log(dom.window.document.querySelector("p").textContent); // "Hello world"
+      res.ffwd.dom = dom;
+      //res.send(ReactDOMServer.renderToString(<MyComponent />));
+      next();
+    });
 
     this.server = this.webApp.listen(this.port, () => debug.info(`Listening at http://${this.ip}:${this.port}`));
 
@@ -75,7 +101,11 @@ class LocalServer {
     routeModules.forEach((routeModule: Interfaces.IApplicationModule) => {
       const route: Route = routeModule.moduleExports;
       debug.trace(`LocalServer.registerRoutesFromModules: Registering route ${route.uri} (${routeModule.name})`, route.action);
-      this.webApp.route(route.uri).all(route.action);
+      this.webApp.route(route.uri).all(async (req, res, next) => {
+        res.ffwd.currentRoute = route;
+        await route.action(req, res);
+        next();
+      });
     });
 
   }

@@ -167,7 +167,7 @@ class Compiler {
         .group("moduleType")
         .apply(async (files:any) => {
 
-          debug.trace("Bundling modules.");
+          //debug.trace("Bundling modules.");
 
           //
           // Gather modules
@@ -175,7 +175,7 @@ class Compiler {
 
           this.modules = {};
 
-          console.log(files);
+          //console.log(files);
 
           /*
           ffwd.Enums.FFWDModuleType.forEach((moduleType:string) => {
