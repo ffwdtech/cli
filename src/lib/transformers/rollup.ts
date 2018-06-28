@@ -19,6 +19,7 @@ async function transform({
   files
 }: IBundleTransformerInput, options: any): Promise<any> {
 
+  /*
   const bundle = await rollup(
     Object.assign(
       options.inputOptions, 
@@ -53,11 +54,13 @@ async function transform({
   ];
 
   //console.log("base:", base, "code:", code, "filePath:", filePath, "files:", returnFiles);
-
+  
   return {
     contents: code,
     files: returnFiles
   };
+
+  */
 
 }
 

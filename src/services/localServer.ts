@@ -1,6 +1,7 @@
 import * as express from "express";
 import { Application, Route, Enums, Interfaces } from "ffwd";
 import { debug } from "../lib/debug";
+import { middleware } from "./middleware/index";
 
 interface ILocalServerConstructor {
   app: Application,
@@ -43,20 +44,26 @@ class LocalServer {
     if(this.server) {
       debug.info("Closing server");
       this.server.close();
+      this.server = undefined;
     }
   }
 
   start() {
 
-
     this.close();
 
-    const routeModules = this.app.getModulesByType({
-      type: Enums.FFWDModuleType.Route
+    this.webApp = express();
+
+    // Register Express middleware
+    middleware.forEach(fn => {
+      this.webApp.use(fn);
     });
 
-    this.webApp = express();
-    this.registerRoutesFromModules(routeModules);
+    // Register route modules from FFWD app
+    this.registerRoutesFromModules(this.app.getModulesByType({
+      type: Enums.FFWDModuleType.Route
+    }));
+
     this.server = this.webApp.listen(this.port, () => debug.info(`Listening at http://${this.ip}:${this.port}`));
 
     return this;
