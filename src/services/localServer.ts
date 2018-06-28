@@ -5,7 +5,6 @@ import { middleware } from "./middleware/index";
 import * as jsdom from "jsdom";
 import * as React from "react";
 import * as ReactDOMServer from "react-dom/server";
-
 import * as DOM from "react-dom-factories";
 
 const body = DOM.body;
@@ -17,12 +16,6 @@ interface ILocalServerConstructor {
   appConfiguration: any,
   ip: string,
   port: number
-}
-
-class MyComponent extends React.Component {
-  render() {
-    return `<div>Hello World</div>`;
-  }
 }
 
 class LocalServer {
@@ -90,7 +83,8 @@ class LocalServer {
       //console.log(dom.window.document.querySelector("p").textContent); // "Hello world"
       //res.ffwd.dom = dom;
       //res.send(dom);
-      const type = React.createElement(MyComponent);
+      console.log(res.ffwd);
+      const type = React.createElement(res.ffwd.currentRoute.component);
       res.send(ReactDOMServer.renderToString(type));
       //next();
     });
@@ -108,7 +102,7 @@ class LocalServer {
       debug.trace(`LocalServer.registerRoutesFromModules: Registering route ${route.uri} (${routeModule.name})`, route.action);
       this.webApp.route(route.uri).all(async (req, res, next) => {
         res.ffwd.currentRoute = route;
-        await route.action(req, res);
+        //await route.action(req, res);
         next();
       });
     });

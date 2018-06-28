@@ -13,7 +13,7 @@ import ICompilerInput from "./interfaces/ICompilerInput";
 import * as ffwd from "ffwd";
 import ITransformInput from "./interfaces/ITransformInput";
 import ITransformFile from "./interfaces/ITransformFile";
-import { Application } from "ffwd/build/Application";
+import { Application } from "ffwd";
 
 /**
  * 

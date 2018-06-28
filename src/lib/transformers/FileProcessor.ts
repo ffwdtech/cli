@@ -1,6 +1,7 @@
 import ITransform from "../interfaces/ITransform";
 import ITransformFile from "../interfaces/ITransformFile";
 import debug from "../debug";
+import * as path from "path";
 import { Method, Route, Enums, Constants } from "ffwd";
 import requireFromString from "../helpers/requireFromString";
 import IFileParams from "../interfaces/IFileParams";
@@ -34,7 +35,7 @@ async function transform({
       // Detect module instances.
       Constants.ModuleTypesWithClasses.forEach((moduleTypeWithClass:any) => {
 
-        if (   
+        if (
           newModule.constructor === moduleTypeWithClass.class ||  // Instantiates a module (Route, Method, etc.)
           parentClassOfModule && parentClassOfModule.name === moduleTypeWithClass.type   // Extends from a class (Entity, etc.) 
         ) {
